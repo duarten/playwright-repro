@@ -1,0 +1,26 @@
+name: Load Node modules
+description: Loads Node modules from cache
+inputs: {}
+outputs: {}
+runs:
+    using: "composite"
+    steps:
+        - name: Restore node_modules
+          uses: actions/cache@v3
+          id: node_modules_cache
+          with:
+              path: |
+                  $HOME/.cache/pnpm
+                  node_modules
+              key: pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+              restore-keys: pnpm-
+
+        - uses: pnpm/action-setup@v2.2.4
+
+        - name: pnpm install
+          run: pnpm i --frozen-lockfile
+          shell: bash
+
+        - name: Playwright install
+          run: PLAYWRIGHT_BROWSERS_PATH=0 pnpm exec playwright install --with-deps
+          shell: bash
